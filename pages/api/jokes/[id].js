@@ -1,13 +1,16 @@
-import { jokes } from "../../../lib/data.js";
+import dbConnect from "../../../db/connect";
+import Joke from "../../../db/model/Joke";
 
-export default function handler(request, response) {
-  const { id } = request.query;
+export default async function handler(request, response) {
+  await dbConnect();
 
-  const joke = jokes.find((joke) => joke.id === id);
+  if (request.method === "GET") {
+    const joke = await Joke.findById(request.query.id);
+    
+    if (!joke) {
+      return response.status(404).json({ status: "Not Found" });
+    }
 
-  if (!joke) {
-    return response.status(404).json({ status: "Not Found" });
+    response.status(200).json(joke);
   }
-
-  response.status(200).json(joke);
 }
